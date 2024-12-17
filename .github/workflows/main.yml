@@ -1,18 +1,63 @@
-  name: CI
-  on:
-    push: 
-      branches:  [master]
+name: Build Android Project
 
-      workflow_dispatch:
+# Trigger the workflow when a push or pull request is made to the "main" branch
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
-jobs: 
+jobs:
   build:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for building Android app
 
-      steps: 
-        -  uses: actions/checkout@v2
-        - name: run one line script
-          run: echo Helo, Word!   
+    # Cache Gradle dependencies to speed up builds
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      
-  
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adoptopenjdk'
+
+      # Cache Gradle dependencies for faster builds
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up Android SDK
+        uses: reactivecircus/android-sdk-manager-action@v2
+        with:
+          api-level: 30
+          build-tools: 30.0.3
+          ndk: 21.3.6528147
+          components: "platform-tools,build-tools,tools"
+
+      - name: Build the project
+        run: ./gradlew build --stacktrace
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Build APK (Release)
+        run: ./gradlew assembleRelease
+
+      - name: Upload APK as Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Debug APK as Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
