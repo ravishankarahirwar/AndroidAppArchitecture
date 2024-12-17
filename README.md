@@ -1,3 +1,4 @@
+# AndroidAppArchitecture
 Android MVVM Architecture Code Sample
 This repository contains a sample Android project demonstrating the MVVM (Model-View-ViewModel) architecture, implemented with Clean Architecture principles. The sample project shows how to structure an Android application using a Domain Layer, Use Cases, Repository Pattern, and how to follow the best practices for maintainable, testable, and scalable Android development.
 
@@ -88,5 +89,4 @@ Fork this repository.
 
 
 
-# AndroidAppArchitecture
 This is a public repository to dimostrate, how we can make a testable app architecture with clean architecture
